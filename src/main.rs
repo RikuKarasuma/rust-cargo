@@ -1,3 +1,7 @@
+/**
+ * Going through the Rust programming language basics on linkin learning.
+ * Searching for that syntactic sugar.
+ */
 fn main() {
     variables_arithmetic_printing();
     bitwise_operations();
@@ -6,10 +10,12 @@ fn main() {
     char_operations();
     find_average();
     arrays();
+    two_d_arrays();
+    tuples();
 }
 
 fn variables_arithmetic_printing() {
-    println!("Basic variable syntax\n");
+    println!("Basic variable syntax:\n");
 
     // Variable
     let mut x = 10;
@@ -52,7 +58,7 @@ fn variables_arithmetic_printing() {
 }
 
 fn bitwise_operations() {
-    println!("Bitwise syntax\n");
+    println!("Bitwise syntax:\n");
 
     let binary = 0b1111_0101u8;
     // display as int
@@ -102,7 +108,7 @@ fn bitwise_operations() {
 }
 
 fn bool_operations() {
-    println!("Boolean syntax\n");
+    println!("Boolean syntax:\n");
 
     // Bitwise operators work on bools, 1 = true, 0 = false.
     let a = true;
@@ -126,7 +132,7 @@ fn bool_operations() {
 }
 
 fn bool_operations_2() {
-    println!("Boolean syntax expressions\n");
+    println!("Boolean syntax expressions:\n");
 
     // Bitwise operators work on bools, 1 = true, 0 = false.
     let a = 1;
@@ -142,7 +148,7 @@ fn bool_operations_2() {
 }
 
 fn char_operations() {
-    println!("Character syntax\n");
+    println!("Character syntax:\n");
 
     // Unicode by default.
     // Stored using 4 bytes, differing from cpp's and java's 1|2 bytes respectively.
@@ -154,7 +160,7 @@ fn char_operations() {
 }
 
 fn find_average() {
-    println!("Find average\n");
+    println!("Find average:\n");
 
     let number_1 = 15;
     let number_2 = 2.4;
@@ -162,14 +168,14 @@ fn find_average() {
     let sum:f64 = number_1 as f64 + number_2 + number_3 as f64;
     let average = sum / 3.0;
 
-    const expected:f64 = 83.8;
-    assert_eq!(average, expected);
-    println!("Average is {} as expected {}", average, average);
+    const EXPECTED:f64 = 83.8;
+    assert_eq!(average, EXPECTED);
+    println!("Average is {} as expected {}", average, EXPECTED);
     println!();
 }
 
 fn arrays() {
-    println!("Arrays syntax\n");
+    println!("Arrays syntax:\n");
 
     // Can't dynamically resize array.
     let mut letters = ['a', 'b', 'c'];
@@ -188,4 +194,42 @@ fn arrays() {
     // eg. int32 = 4 bytes, float64 = 8 bytes etc.
     let final_index: usize = numbers.len() - 1;
     println!("Last number is {}", numbers[final_index]);
+    println!();
+}
+
+fn two_d_arrays() {
+    println!("2D Arrays syntax:\n");
+
+    // 2d array, group of groups.
+    // Inner dimensions must match or else error.
+    let numbers = [
+        [1, 2, 3],
+        [4, 5, 6]
+    ];
+
+    let get_first_val_of_first_array = numbers[0][0];
+    println!("First value of the first array is {}", get_first_val_of_first_array);
+
+    let garage: [[[i32; 100]; 20]; 5];
+    // Initialize each group with zeros
+    garage = [[[0; 100]; 20]; 5];
+
+    println!("Initialized 3D array: {}", garage[0][0][0]);
+    println!();
+}
+
+fn tuples() {
+    println!("Tuples syntax:\n");
+
+    // Can use a mix of data types.
+    let things = (21, 3.14, 'e');
+    let first_thing = things.0;
+
+    println!("First thing in tuple: {}", first_thing);
+
+    // Destructuring tuple
+    let (_destructured_tuple_0, destructured_tuple_1, _destructured_tuple_2) = things;
+
+    println!("Second thing in destructure tuple {}", destructured_tuple_1);
+    println!();
 }
