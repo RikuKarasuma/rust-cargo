@@ -12,7 +12,24 @@ fn main() {
     arrays();
     two_d_arrays();
     tuples();
+    use_input_function(2, 3);
+    square_input();
+    return_early();
+    return_tuple();
+    convert_to_fahrenheit();
+    condition_if();
+    conditional_assignment();
+    loops();
+    while_loop();
+    for_loop();
+    nested_loop();
+    calculate_mean_min_max([1, 9, -2, 0, 23, 20, -7, 13, 37, 20, 56, -18, 20, 3]);
 }
+
+fn output_section_separator() {
+    println!("====================================");
+    println!();
+} 
 
 fn variables_arithmetic_printing() {
     println!("Basic variable syntax:\n");
@@ -54,7 +71,7 @@ fn variables_arithmetic_printing() {
     let x_2_d_2_opt = 54;
     let x_1_2_d_2_opt = x_1_d_2_opt / x_2_d_2_opt as f32;
     println!("Division of {0} by {1} is {2:.3}", x_1_d_2_opt, x_2_d_2_opt, x_1_2_d_2_opt);
-    println!();
+    output_section_separator();
 }
 
 fn bitwise_operations() {
@@ -104,7 +121,7 @@ fn bitwise_operations() {
     let bits_should_be_shifted_right = should_shift_our_bits_right_2 == 0b0000_01011;
     println!("Shifted bits over right: {:08b}", should_shift_our_bits_right_2);
     println!("Shifted bits over right: {}", bits_should_be_shifted_right);
-    println!();
+    output_section_separator();
 }
 
 fn bool_operations() {
@@ -128,7 +145,7 @@ fn bool_operations() {
     // Won't evaluate right side after determining left.
     let c_short_circuited = (a ^ b) || panic!();
     println!("c short circuited is: {}", c_short_circuited);
-    println!();
+    output_section_separator();
 }
 
 fn bool_operations_2() {
@@ -144,7 +161,7 @@ fn bool_operations_2() {
     println!("a GREATER THAN OR EQUAL TO b is {}", a >= b);
     println!("a LESS THAN b is {}", a < b);
     println!("a LESS THAN OR EQUAL TO b is {}", a <= b);
-    println!();
+    output_section_separator();
 }
 
 fn char_operations() {
@@ -156,7 +173,7 @@ fn char_operations() {
     let number = '1';
     let finger = '\u{261D}'; // ☝
     println!("{}\n{}\n{}", letter, number, finger);
-    println!();
+    output_section_separator();
 }
 
 fn find_average() {
@@ -171,7 +188,7 @@ fn find_average() {
     const EXPECTED:f64 = 83.8;
     assert_eq!(average, EXPECTED);
     println!("Average is {} as expected {}", average, EXPECTED);
-    println!();
+    output_section_separator();
 }
 
 fn arrays() {
@@ -194,7 +211,7 @@ fn arrays() {
     // eg. int32 = 4 bytes, float64 = 8 bytes etc.
     let final_index: usize = numbers.len() - 1;
     println!("Last number is {}", numbers[final_index]);
-    println!();
+    output_section_separator();
 }
 
 fn two_d_arrays() {
@@ -215,7 +232,7 @@ fn two_d_arrays() {
     garage = [[[0; 100]; 20]; 5];
 
     println!("Initialized 3D array: {}", garage[0][0][0]);
-    println!();
+    output_section_separator();
 }
 
 fn tuples() {
@@ -231,5 +248,254 @@ fn tuples() {
     let (_destructured_tuple_0, destructured_tuple_1, _destructured_tuple_2) = things;
 
     println!("Second thing in destructure tuple {}", destructured_tuple_1);
+    output_section_separator();
+}
+
+// Rust doesn't care where you declare your functions/
+fn use_input_function(input: i32, input_2: i32) {
+    println!("Function input syntax:\n");
+
+    println!("Input provided was summed to: {}", input + input_2);
+    output_section_separator();
+}
+
+fn square_input() {
+    println!("Function return syntax:\n");
+
+    println!("Squared input: {}", square_input_value(2));
+    output_section_separator();
+}
+
+fn square_input_value(x: i32) -> i32 {
+
+    // Returns are the last line of a rust function
+    x * x
+}
+
+fn return_early() {
+    println!("Function return early syntax:\n");
+
+    println!("Squared input: {}", return_early_function(2));
+    output_section_separator();
+}
+
+fn return_early_function(x: i32) -> i32 {
+
+    if x < 5 {
+        return x;
+    }
+
+    // Returns are the last line of a rust function
+    x * x
+}
+
+fn return_tuple() {
+    println!("Function return tuple syntax:\n");
+
+    // {:?} pattern will display tuple.
+    println!("Squared input: {:?}", return_tuple_function(10));
+    output_section_separator();
+}
+
+fn return_tuple_function(x: i32) -> (i32, i32) {
+    if x > 5 {
+        return (x, x * x);
+    }
+
+    // Returns are the last line of a rust function
+    (0, 0)
+}
+
+fn convert_to_fahrenheit() {
+    println!("Challenge convert to fahrenheit:\n");
+
+    let converted_celsius = convert_from_celsius_to_fahrenheit(1.0);
+
+    const EXPECTED: f64 = 33.8;
+    assert_eq!(converted_celsius, EXPECTED);
+    println!("Converted °C to °F: {}", converted_celsius);
+
+    output_section_separator();
+}
+
+
+fn convert_from_celsius_to_fahrenheit(celsius: f64) -> f64 {
+
+
+    // alternative formula
+    //celsius * (9.0 / 5.0 + 32.0)
+    celsius * (1.8 + 32.0)
+}
+
+fn condition_if() {
+    println!("If syntax:\n");
+
+    condition_if_return(3);
+    condition_if_return(10);
+
+    output_section_separator();
+}
+
+fn condition_if_return(x: i32) -> () {
+    if x == 3 {
+        println!("x is 3!");
+    } else {
+        println!("x is not 3!");
+    }
+}
+
+fn conditional_assignment() {
+    println!("Conditional assignment syntax:\n");
+
+    let make_x_odd = true;
+    // If is an expression in Rust so it can return a value.
+    let x = if make_x_odd {1.0} else {2.0};
+    println!("Squared input: {}", x);
+
+    output_section_separator();
+}
+
+fn loops() {
+    println!("Loops syntax:\n");
+
+    let mut end_loop_at_end_limit = 0;
+
+    // Loops in rust are expressions so they can return values.
+    let loop_result = loop {
+
+
+
+        if end_loop_at_end_limit == 10 {
+            break 10 * 10;
+        } else {
+            end_loop_at_end_limit += 1;
+            println!("Working: {}", end_loop_at_end_limit);
+        }
+    };
+
+    println!("Ended loop: {}, {}", end_loop_at_end_limit, loop_result);
+
+    output_section_separator();
+}
+
+fn while_loop() {
+    println!("While loops syntax:\n");
+
+    let mut end_loop_at_end_limit = 0;
+
+    // Loops in rust are expressions so they can return values.
+    while end_loop_at_end_limit < 10 {
+
+        end_loop_at_end_limit += 1;
+        println!("Working: {}", end_loop_at_end_limit);
+    };
+
+    println!("Ended loop: {}", end_loop_at_end_limit);
+
+    end_loop_at_end_limit = 0;
+    let a_word = ['M', 'o', 'n', 'd', 'a', 'y'];
+    while end_loop_at_end_limit < a_word.len() {
+        print!("{}", a_word[end_loop_at_end_limit]);
+        end_loop_at_end_limit += 1;
+    }
     println!();
+    output_section_separator();
+}
+
+fn for_loop() {
+    println!("For loops syntax:\n");
+
+    // Enhanced for loop.
+    let a_word = ['M', 'o', 'n', 'd', 'a', 'y'];
+    for letter in a_word {
+        print!("{}", letter);
+    }
+    println!();
+
+    // Create tuple from enumerated iterator.
+    let a_word = ['M', 'o', 'n', 'd', 'a', 'y'];
+    for (index, &item) in a_word.iter().enumerate() {
+        println!("{}, {}", index, item);
+
+        if item == 'a' {
+            break;
+        }
+
+    }
+    println!();
+
+    // Iterates over 0 to 4.
+    for number in 0..5 {
+        println!("{}", number);
+
+    }
+    println!();
+
+    output_section_separator();
+}
+
+fn nested_loop() {
+    println!("Nested loops syntax:\n");
+
+    let mut matrix = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+    ];
+
+    // Multi dimensional array
+    for row in matrix.iter_mut() {
+        for num in row.iter_mut() {
+            *num += 10;
+            print!("{}\t", num);
+        }
+    }
+
+
+    println!();
+
+    output_section_separator();
+}
+
+//
+fn calculate_mean_min_max(array: [i32; 14]) {
+    println!("Challenge calculate mean/max/min:\n");
+
+    // Mean = sum / length
+    let mut sum = 0.0;
+    for number in array {
+        sum += number as f64;
+    }
+
+    let mean_average = sum / array.len() as f64;
+    const EXPECTED_MEAN: f64 = 12.5;
+    assert_eq!(EXPECTED_MEAN, mean_average);
+    println!("Mean for the inputted array is: {}", mean_average);
+
+    // Min
+    let mut min = 0;
+    for number in array {
+        if number < min {
+            min = number;
+        }
+    }
+
+    const EXPECTED_MIN: i32 = -18;
+    assert_eq!(EXPECTED_MIN, min);
+    println!("Min for the inputted array is: {}", min);
+
+    // Max
+    let mut max = 0;
+    for number in array {
+        if number > max {
+            max = number;
+        }
+    }
+
+    const EXPECTED_MAX: i32 = 56;
+    assert_eq!(EXPECTED_MAX, max);
+    println!("Max for the inputted array is: {}", max);
+
+    println!();
+    output_section_separator();
 }
