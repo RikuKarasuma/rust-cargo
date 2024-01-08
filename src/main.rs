@@ -24,6 +24,12 @@ fn main() {
     for_loop();
     nested_loop();
     calculate_mean_min_max([1, 9, -2, 0, 23, 20, -7, 13, 37, 20, 56, -18, 20, 3]);
+    variable_shadowing();
+    stack_info();
+    heap_info();
+    heap_string();
+    variable_ownership();
+    heap_arguments();
 }
 
 fn output_section_separator() {
@@ -457,7 +463,6 @@ fn nested_loop() {
     output_section_separator();
 }
 
-//
 fn calculate_mean_min_max(array: [i32; 14]) {
     println!("Challenge calculate mean/max/min:\n");
 
@@ -498,4 +503,121 @@ fn calculate_mean_min_max(array: [i32; 14]) {
 
     println!();
     output_section_separator();
+}
+
+fn variable_shadowing() -> () {
+    println!("Variable shadowing:\n");
+
+    // basically you can reassign the same variables
+    // within scope without using mut.
+    let shadow_variable = "Earth";
+    println!("Planet is {}", shadow_variable);
+    let shadow_variable = "Mars";
+    println!("Planet is {}", shadow_variable);
+    println!();
+    output_section_separator();
+}
+
+fn stack_info() -> () {
+    println!("Stack:\n");
+
+    println!("Push and pop data very quickly.");
+    println!("Access data very quickly.");
+    println!("Small memory size.");
+    println!("All data must have a known fixed size.");
+
+    println!();
+    output_section_separator();
+}
+
+fn heap_info() -> () {
+    println!("Heap:\n");
+
+    println!("Once memory is assigned, a pointer is returned.");
+    println!("A pointer is a data type used to access the memory location.");
+    println!("It is slower than the stack.");
+    println!("Ability to dynamically add and remove data.");
+
+    println!();
+    output_section_separator();
+}
+
+fn heap_string() -> () {
+    println!("Heap String:\n");
+
+    let mut heap_string = String::from("Earth");
+    println!("Message is {}", heap_string);
+    heap_string.push_str(" is home.");
+    println!("Message is {}", heap_string);
+
+    println!();
+    output_section_separator();
+}
+
+fn variable_ownership() -> () {
+    println!("Ownership:\n");
+
+    println!("Variables are responsible for freeing their own resources.");
+    println!("Rules:");
+    println!("1. Every value is owned by one and only one variable at a time.");
+    println!("2. When the owning variable goes out of scope, the value is dropped(mem freed).");
+    println!("Advantage:");
+    println!("1. Safe, no memory leaks or invalid memory access bugs.");
+    println!("2. Efficient because the compiler knows when to deallocate at compile time.");
+    println!("Disadvantage:");
+    println!("1. Requires understanding of ownership.");
+    println!("2. Longer to pick up because of new language paradigm.");
+    println!();
+
+    // Example of ownership pointer move. (shadow copy)
+    println!("Ownership example, move.");
+    let outer_planet: String;
+    {
+        let inner_planet = String::from("Mercury");
+        println!("Inner planet is {}", inner_planet);
+        outer_planet = inner_planet;
+    }
+    println!("Outer planet is {}", outer_planet);
+    println!();
+
+    // Example of ownership pointer deep copy.
+    println!("Ownership example, copy.");
+    let outer_planet: String;
+    {
+        let inner_planet = String::from("Mercury");
+        outer_planet = inner_planet.clone();
+        println!("Inner planet is {}", inner_planet);
+    }
+    println!("Outer planet is {}", outer_planet);
+    println!();
+
+    println!();
+    output_section_separator();
+}
+
+fn heap_arguments() -> () {
+    println!("Heap Argument passing:\n");
+
+    let mut heap_string = String::from("1st String");
+    // Copy the data is one solution.
+    // Changes won't be reflected.
+    process_heap_argu(heap_string.clone());
+
+    // Can't use the same pointer after this function
+    // because the ownership has been transferred to
+    // the function.
+    // Returning another string will transfer the ownership
+    // back.
+    heap_string = process_heap_argu(heap_string);
+
+    println!("Message is {}", heap_string);
+
+    println!();
+    output_section_separator();
+}
+
+fn process_heap_argu(str: String) -> String {
+    println!("Passed Argument is {}", str);
+    let new_return = String::from("2nd String");
+    new_return
 }
