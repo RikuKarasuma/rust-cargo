@@ -30,6 +30,10 @@ fn main() {
     heap_string();
     variable_ownership();
     heap_arguments();
+    heap_arguments_borrowing_references();
+    slice();
+    slice_as_function();
+    trim_spaces_tests();
 }
 
 fn output_section_separator() {
@@ -620,4 +624,158 @@ fn process_heap_argu(str: String) -> String {
     println!("Passed Argument is {}", str);
     let new_return = String::from("2nd String");
     new_return
+}
+
+fn heap_arguments_borrowing_references() -> () {
+    println!("Heap Argument passing w/ references(borrowing):\n");
+
+    let mut heap_string = String::from("1st String");
+
+    // Borrowing i.e References
+    //
+    // Access/modify data without taking ownership of it.
+    // Create references using the borrow operator &.
+    // Essentially a reference is a pointer to a pointer.
+    //
+    // RESTRICTION:
+    // Once you create a mutable reference, you cannot create
+    // any other references to it, within that scope.
+    // Done for safety, prevents data races.
+    let length = process_heap_argu_borrowing_references(&mut heap_string);
+
+    println!("Message is {} with length of {}", heap_string, length);
+
+    println!();
+    output_section_separator();
+}
+
+fn process_heap_argu_borrowing_references(str: &mut String) -> usize {
+    println!("Passed Argument is {}", str);
+    str.push_str("(of many)");
+    str.len()
+}
+
+// This is called a dangling reference.
+// It will fail to compile because this heap String
+// will be freed from memory before the reference
+// can be used.
+// fn return_reference_func() -> &String {
+//     & String::from("Returning Str Reference")
+// }
+
+fn slice() {
+    println!("Slice :\n");
+
+    let heap_string = String::from("Greetings from Saturn!");
+
+    // Reference to a contiguous section of a collection.
+    // Commonly encountered as the string slice data type: &str
+    // String literals are slices.
+    // Length is in bytes.
+    // Range indices must occur at valid UTF-8 character boundaries.
+    let sliced_reference_of_message = &heap_string[15 ..heap_string.len()-1];
+    println!("Last word is {}", sliced_reference_of_message);
+
+    let planets = [1, 2, 3, 4, 5, 6, 7, 8];
+    let inner_planets : &[i32] = &planets[..4];
+    println!("Inner planets are {:?}", inner_planets);
+
+    println!();
+    output_section_separator();
+}
+
+fn slice_as_function() {
+    println!("Slice :\n");
+
+    let heap_string = String::from("Greetings from Saturn!");
+
+    let sliced_reference_of_message = get_first_word(&heap_string[10..]);
+    println!("First word is {}", sliced_reference_of_message);
+
+    println!();
+    output_section_separator();
+}
+
+fn get_first_word(str: &str) -> &str {
+    let bytes = str.as_bytes();
+
+    for (index, &item) in bytes.iter().enumerate() {
+        if item == b' ' { // Found a space at this index.
+            return &str[..index];
+        }
+    }
+
+    &str // If we got to here no space was found.
+}
+
+fn trim_spaces_tests() {
+    println!("Challenge trim str reference :\n");
+
+    println!("testing strings...");
+
+    let test1 = "We need more space.";
+    assert_eq!(trim_spaces(&test1), "We need more space.");
+
+    let test2 = "    There's a space in front.";
+    assert_eq!(trim_spaces(&test2), "There's a space in front.");
+
+    let test3 = "There's a space in the rear.   ";
+    assert_eq!(trim_spaces(&test3), "There's a space in the rear.");
+
+    let test4 = "    We're surrounded by space!     ";
+    assert_eq!(trim_spaces(&test4), "We're surrounded by space!");
+
+    let test5 = "       ";
+    assert_eq!(trim_spaces(&test5), "");
+
+    let test6 = "";
+    assert_eq!(trim_spaces(&test6), "");
+
+    let test7 = " 🚀 ";
+    assert_eq!(trim_spaces(&test7), "🚀");
+
+    println!("All passed");
+
+    println!();
+    output_section_separator();
+}
+
+fn trim_spaces(str: &str) -> &str {
+
+    let enumerated_bytes = str.as_bytes().iter().enumerate();
+    let enumerated_bytes_in_rev = str.as_bytes().iter().enumerate().rev();
+
+
+    let mut found_left:bool = false;
+    let mut left_index: usize = 0;
+    let mut found_right:bool = false;
+    let mut right_index: usize = str.len();
+
+    // two pointer algo, scan left and right each iteration, searching for spaces.
+    for ( (x1, &x2), (y1, &y2)) in enumerated_bytes.zip(enumerated_bytes_in_rev) {
+
+        if x2 != b' ' && !found_left {
+            if x1 != 0 {
+                left_index = x1;
+            }
+            found_left = true;
+        }
+
+        if y2 != b' ' && !found_right {
+            if y1 != str.len() {
+                right_index = y1 + 1;
+            }
+
+            found_right = true;
+        }
+
+        // If we found the point which there is no more spaces on each side return
+        // new sliced reference of our &str argument.
+        if found_left && found_right {
+            return &str[left_index .. right_index];
+        }
+
+    }
+
+    ""
 }
