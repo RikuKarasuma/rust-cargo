@@ -1,3 +1,10 @@
+use std::{io, mem};
+use std::io::{stdin, Write};
+use rand::prelude::*;
+use std::env;
+use std::fs;
+use std::cmp::PartialOrd;
+
 /**
  * Going through the Rust programming language basics on linkin learning.
  * Searching for that syntactic sugar.
@@ -34,6 +41,24 @@ fn main() {
     slice();
     slice_as_function();
     trim_spaces_tests();
+    //standard_io();
+    //standard_io_and_cast();
+    using_creates_rand();
+    //higher_lower_game();
+    //using_stdin_args();
+    using_file_system_read_file();
+    using_file_system_write_file();
+    does_name_exist_in_txt_file();
+    defining_structures();
+    defining_methods();
+    defining_associated_function();
+    using_tuple_structs();
+    create_rectangle_with_methods_and_new_ass_fn();
+    generic_struct_definitions();
+    generic_method_definitions();
+    generic_function_definitions();
+    using_box_data_type();
+    using_boxed_objects();
 }
 
 fn output_section_separator() {
@@ -778,4 +803,498 @@ fn trim_spaces(str: &str) -> &str {
     }
 
     ""
+}
+
+fn standard_io() {
+    println!("Standard I/O library :\n");
+
+    println!("Please supply a message");
+
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer);
+    println!("Entered message is: {}", buffer);
+
+    println!();
+    output_section_separator();
+}
+
+fn standard_io_and_cast() {
+    println!("Standard I/O library casting :\n");
+
+    println!("Please supply an integer to cast");
+
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer);
+
+    let casted_number: i32 = buffer.trim().parse::<i32>().unwrap();
+
+    println!("Entered integer is: {}", casted_number);
+
+    println!();
+    output_section_separator();
+}
+
+fn using_creates_rand() {
+    println!("Using crates, Rand create :\n");
+
+    let number = random::<f64>();
+
+    println!("Random number is {}", number);
+
+    let thread_local_rng = thread_rng().gen_range(1..11);
+    println!("Random number between 1 and 10 is {}", thread_local_rng);
+
+    println!();
+    output_section_separator();
+}
+
+fn higher_lower_game() {
+    println!("Challenge crates, Rand create :\n");
+
+    let prize_number = thread_rng().gen_range(1..101);
+
+
+    loop {
+        println!("Guess a number between 1 and 100");
+        let mut user_guess = String::new();
+        stdin().read_line(&mut user_guess);
+
+        let casted_number:i8 = user_guess.trim().parse().unwrap();
+
+        if casted_number == prize_number {
+            println!("Woo, you got got it!");
+            break;
+        }
+        else if casted_number < prize_number {
+            println!("Higher...");
+        }
+        else if casted_number > prize_number {
+            println!("Lower...");
+        }
+
+    }
+
+    println!();
+    output_section_separator();
+}
+
+fn using_stdin_args() {
+    println!("Using std command line args :\n");
+
+    for (index, argument ) in env::args().enumerate() {
+        println!("Argument {} is {}", index, argument);
+    }
+
+    let arg2 = env::args().nth(2).unwrap();
+    print!("Arg2 is {}",arg2);
+
+    println!();
+    output_section_separator();
+}
+
+fn using_file_system_read_file() {
+    println!("Using fs crate to read file :\n");
+
+    let file_contents = fs::read_to_string("planets.txt").unwrap();
+    println!("Contents of txt file: {}", file_contents);
+
+    for line in file_contents.lines() {
+        println!("line is {}", line);
+    }
+
+    let file_contents_as_byte_vector = fs::read("planets.txt").unwrap();
+
+    println!("Bytes contents are {:?}", file_contents_as_byte_vector);
+    println!();
+    output_section_separator();
+}
+
+fn using_file_system_write_file() {
+    println!("Using fs crate to write file :\n");
+
+    let mut moon_speech = String::new();
+    moon_speech.push_str("We choose to go to the Moon in this decade\n");
+    moon_speech.push_str("and do the other things,\n");
+    moon_speech.push_str("not because they are easy,\n");
+    moon_speech.push_str("but because they are hard.\n");
+
+    const MOON_SPEECH_FILE_NAME: &str = "speech.txt";
+    // Will replace existing files.
+    // Writes all at once.
+    fs::write(MOON_SPEECH_FILE_NAME, moon_speech);
+    println!("Moon speech was written to speech.txt");
+
+    const PLANET_NAMES_FILE_NAME: &str = "planets.txt";
+    // OpenOptions allows us to configure how the
+    // file will be opened.
+    // In this case, append.
+    let mut file = fs::OpenOptions::new().append(true).open(PLANET_NAMES_FILE_NAME).unwrap();
+
+    // Reinstate Pluto
+    file.write(b"\nPluto");
+
+    println!();
+    output_section_separator();
+}
+
+fn does_name_exist_in_txt_file() {
+
+    // Needs to be less than 3 if this is being run from cargo
+    if env::args().len() < 3 {
+        eprintln!("This program does_name_exist_in_txt_file() requires two arguments: <file path> <search name>");
+        println!();
+        output_section_separator();
+        return;
+    }
+
+
+    let file:String = env::args().nth(1).unwrap();
+    let name_to_find:String = env::args().nth(2).unwrap();
+
+
+    println!("Challenge: Does name {} exist in file {}:", name_to_find, file);
+
+    let lines = fs::read_to_string(file).unwrap();
+
+    let mut found_name = false;
+    let mut line_counter = 0;
+    for line in lines.lines() {
+        line_counter += 1;
+
+        if line == name_to_find {
+            found_name = true;
+            println!("Name {} exists on line {}", name_to_find, line_counter);
+            break;
+        }
+    }
+
+    if !found_name {
+        println!("Failed to find {} within {}", name_to_find, found_name)
+    }
+
+    println!();
+    output_section_separator();
+}
+
+#[derive(Debug)]
+struct Shuttle {
+    name: String,
+    crew_size: u8,
+    propellant: f64
+}
+
+fn defining_structures() {
+    println!("Creating and using structs");
+
+    // Group multiple items of mixed data types.
+    // Elements are named.
+
+    let mut vehicle = Shuttle {
+        name: String::from("Endeavour"),
+        crew_size: 7,
+        propellant: 835958.0f64
+    };
+
+    let mut vehicle_2 = Shuttle {
+        name: String::from("Discovery"),
+        crew_size: 6,
+        ..vehicle
+    };
+
+    vehicle.name = String::from("Atlantis");
+    println!("Shuttle values {:?}", vehicle);
+
+    println!("Shuttle 2 values {:?}", vehicle_2);
+
+    println!();
+    output_section_separator();
+}
+
+impl Shuttle {
+    fn get_name(&self) -> &str{
+        &self.name
+    }
+
+    fn add_fuel(&mut self, gallons: f64) {
+        self.propellant += gallons;
+    }
+
+    fn new(name: &str, crew_size: u8, propellant: f64) -> Shuttle {
+        Shuttle {
+            name: String::from(name),
+            crew_size: crew_size,
+            propellant: propellant
+        }
+    }
+}
+
+fn defining_methods() {
+    println!("Creating and using methods");
+
+    // Subroutine associated with a struct.
+    // Can have input parameters and a return value.
+    // Declared using the fn keyword.
+    // First parameter is a reference to the struct instance.
+
+    let mut vehicle = Shuttle {
+        name: String::from("Endeavour"),
+        crew_size: 7,
+        propellant: 835958.0f64
+    };
+
+    let name = vehicle.get_name();
+
+    println!("Shuttle name is {}", name);
+
+    vehicle.add_fuel(1000f64);
+    println!("Shuttle propellant is {}", vehicle.propellant);
+
+    println!();
+    output_section_separator();
+}
+
+fn defining_associated_function() {
+    println!("Creating and using methods");
+
+    // Function associated with a struct data type.
+    // Does not have a &self parameter.
+
+    let mut vehicle = Shuttle::new(
+        "Instance",
+        7,
+        835958.0f64
+    );
+
+    let name = vehicle.get_name();
+
+    println!("Shuttle name is {}", name);
+
+    println!();
+    output_section_separator();
+}
+
+struct Color(u8, u8, u8); // RGB
+struct Point(u8, u8, u8); // XYZ
+
+fn get_y (p: Point) -> u8 {
+    p.1
+}
+
+fn using_tuple_structs() {
+    println!("Using tuple structs");
+
+    // Store a collection of mixed data without named fields.
+    // Distinguishable as a unique data type.
+
+    let red = Color(255, 0, 0);
+
+    println!("RED in RGB is {}", red.0);
+
+    let point = Point(23, 55, 0);
+    println!("Y in XYZ point is {}", point.1);
+
+    println!();
+    output_section_separator();
+}
+
+struct Rect {
+    width: f64,
+    height: f64
+}
+
+impl Rect {
+    fn get_width(&self) -> f64 {
+        self.width
+    }
+
+    fn get_height(&self) -> f64 {
+        self.height
+    }
+
+    fn get_area(&self) -> f64 {
+        self.height * self.width
+    }
+
+    fn scale(&mut self, scaler: f64) {
+        self.width = self.width * scaler;
+        self.height = self.height * scaler;
+    }
+
+    fn new(width: f64, height: f64) -> Rect {
+        Rect {
+            width: width,
+            height: height
+        }
+    }
+}
+
+fn create_rectangle_with_methods_and_new_ass_fn() {
+    println!("Challenge: Create rect with methods and associated fn");
+
+    // Define a struct to represent a Rectangle.
+    // Methods:
+    // get_area() returns width * height.
+    // scale() scales width and height by an input f64 value.
+
+    let mut rect = Rect::new(1.2, 3.4);
+    assert_eq!(rect.get_area(), 4.08);
+    rect.scale(0.5);
+    assert_eq!(rect.get_area(), 1.02);
+    println!("Tests passed!");
+
+    println!();
+    output_section_separator();
+}
+
+#[derive(Debug)]
+struct RectOf<T, U> {
+    width: T,
+    height: U
+}
+
+fn generic_struct_definitions() {
+    println!("Generic struct definitions");
+
+    // Generics are a zero-cost abstraction.
+    // Make programming easier without reducing runtime
+    // performance.
+    // Compiler uses a process called 'Monomorphization'
+    // which replaces the generic placeholders with concrete
+    // data types at compile time.
+
+    let u32_rect = RectOf {
+        width: 4,
+        height: 34.2
+    };
+
+    println!("Rect vals are {:?}", u32_rect);
+
+    println!();
+    output_section_separator();
+}
+
+impl<T, U> RectOf<T, U> {
+    fn get_width(&self) -> &T {
+        &self.width
+    }
+
+    fn get_height(&self) -> &U {
+        &self.height
+    }
+}
+
+// Create a specific concrete type of RectOf
+impl RectOf<u8, u8> {
+    fn get_perimeter(&self) -> u8 {
+        2 * self.width + 2 * self.height
+    }
+}
+
+fn generic_method_definitions() {
+    println!("Generic method definitions");
+
+    // Generics are a zero-cost abstraction.
+    // Make programming easier without reducing runtime
+    // performance.
+    // Compiler uses a process called 'Monomorphization'
+    // which replaces the generic placeholders with concrete
+    // data types at compile time.
+
+    let u32_rect = RectOf {
+        width: 4u8,
+        height: 3u8
+    };
+
+    println!("Rect vals are {:?}", u32_rect);
+    println!("Rect width is {}", u32_rect.get_width());
+    println!("Rect perimeter is {}", u32_rect.get_perimeter());
+
+    println!();
+    output_section_separator();
+}
+
+fn get_biggest<T: PartialOrd>(a: T, b: T) -> T {
+    if a > b {
+        a
+    }
+    else {
+        b
+    }
+}
+
+fn generic_function_definitions() {
+    println!("Generic functions definitions");
+
+    // Generics are a zero-cost abstraction.
+    // Make programming easier without reducing runtime
+    // performance.
+    // Compiler uses a process called 'Monomorphization'
+    // which replaces the generic placeholders with concrete
+    // data types at compile time.
+
+    println!("Biggest val are {:?}", get_biggest(1.3, 2.6));
+
+    println!();
+    output_section_separator();
+}
+
+fn using_box_data_type() {
+    println!("Box data types");
+
+    // Store data on the heap.
+    // Considered a smart pointer because it
+    // adds additional functionality beyond references.
+    // Box<T> has ownership of the data it points to.
+    // When Box<T> goes out of scope it deallocates the
+    // heap memory.
+
+    // Use cases for Box<T>
+    // Store a type whose size cannot be known at compile time.
+    // Example: Recursive types.
+    // Struct containing struct.
+    // Transfer ownership of data rather than copy it on the stack.
+    // Avoid copying large amounts of stack data.
+
+    let vehicle = Shuttle {
+        name: String::from("Atlantis"),
+        crew_size: 4,
+        propellant: 2340f64
+    };
+
+    println!("Vehicle size on stack: {} bytes", mem::size_of_val(&vehicle));
+
+    let boxed_vehicle: Box<Shuttle> = Box::new(vehicle);
+    // Is now only 8 bytes, data has been moved to the heap.
+    // Pointer on stack 8 bytes.
+    println!("Boxed Vehicle size on stack: {} bytes", mem::size_of_val(&boxed_vehicle));
+    // Data on heap 40 bytes.
+    println!("Boxed Vehicle size on heap: {} bytes", mem::size_of_val(&*boxed_vehicle));
+
+    let unboxed_vehicle: Shuttle = *boxed_vehicle;
+    println!("Unboxed Vehicle size on stack: {} bytes", mem::size_of_val(&unboxed_vehicle));
+
+    println!();
+    output_section_separator();
+}
+
+fn sum_boxes<T : std::ops::Add<Output = T>>(box_1: Box<T>, box_2: Box<T>) -> Box<T>
+{
+    let unboxed_1 = *box_1;
+    let unboxed_2 = *box_2;
+    let summed = unboxed_1 + unboxed_2;
+    Box::new(summed)
+}
+
+fn using_boxed_objects() {
+    println!("Challenge: write a function to add 2 numbers stored within boxed objects.");
+
+    // function name: sum_boxes.
+    // input two Box<T> objects where T is a numeric type
+
+    assert_eq!(*sum_boxes(Box::new(1), Box::new(2)), 3);
+    assert_eq!(*sum_boxes(Box::new(3.14159), Box::new(2.71828)), 5.85987);
+    println!("Tests passed!");
+
+    println!();
+    output_section_separator();
 }
