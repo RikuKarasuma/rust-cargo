@@ -1,9 +1,10 @@
-use std::{io, mem};
+use std::{any, fmt, io, mem};
 use std::io::{stdin, Write};
 use rand::prelude::*;
 use std::env;
 use std::fs;
 use std::cmp::PartialOrd;
+use std::fmt::{Display, Formatter, Pointer};
 
 /**
  * Going through the Rust programming language basics on linkin learning.
@@ -59,6 +60,16 @@ fn main() {
     generic_function_definitions();
     using_box_data_type();
     using_boxed_objects();
+    traits();
+    default_traits();
+    derive_traits();
+    trait_bounds();
+    multiple_trait_bounds();
+    return_types_with_implemented_traits();
+    using_display_trait();
+    borrow_checker();
+    lifetime_annotation_syntax();
+    struct_lifetime_annotations();
 }
 
 fn output_section_separator() {
@@ -1294,6 +1305,343 @@ fn using_boxed_objects() {
     assert_eq!(*sum_boxes(Box::new(1), Box::new(2)), 3);
     assert_eq!(*sum_boxes(Box::new(3.14159), Box::new(2.71828)), 5.85987);
     println!("Tests passed!");
+
+    println!();
+    output_section_separator();
+}
+
+#[derive(PartialEq, PartialOrd)]
+struct Satellite {
+    name: String,
+    velocity: f64
+}
+
+struct Asteroid {
+    velocity: f64
+}
+
+struct SpaceStation {
+    name: String,
+    crew_size: u8,
+    altitude: u32
+}
+
+trait Description {
+    fn describe(&self) -> String {
+        String::from("an object flying through space.")
+    }
+}
+
+impl Description for Asteroid {
+
+}
+
+impl Description for Satellite {
+    fn describe(&self) -> String {
+        format!("the {} flying at {} miles per second", self.name, self.velocity)
+    }
+}
+
+impl Description for SpaceStation {
+    fn describe(&self) -> String {
+        format!("the {} flying {} miles high with {} crew members aboard", self.name, self.altitude, self.crew_size)
+    }
+}
+
+fn traits() {
+    println!("Traits");
+
+    // A collection of methods.
+    // Data types can implement a trait.
+    // Generic use traits to specify the capabilities of
+    // unknown data types.
+    // Similar to interfaces in Java.
+
+    let hubble = Satellite {
+        name: String::from("Hubble Telescope"),
+        velocity: 4.72
+    };
+    let iss = SpaceStation {
+        name: String::from("International Space Station"),
+        crew_size: 6,
+        altitude: 254
+    };
+
+    println!("Hubble is {}", hubble.describe());
+    println!("ISS is {}", iss.describe());
+
+    println!();
+    output_section_separator();
+}
+
+fn default_traits() {
+    println!("Default Traits");
+
+    // Default traits for non specific implementations.
+
+    let asteroid = Asteroid {
+        velocity: 4.72
+    };
+
+    println!("Thing is {}", asteroid.describe());
+
+    println!();
+    output_section_separator();
+}
+
+fn derive_traits() {
+    println!("Derive Traits");
+
+    // Derive Traits
+    // Provide default implementations for several common traits.
+    // Derivable Traits:
+    // Eq,
+    // PartialEq,
+    // Ord,
+    // ParitalOrd,
+    // Clone,
+    // Default,
+    // Debug.
+
+    let hubble = Satellite {
+        name: String::from("Hubble Telescope"),
+        velocity: 4.72
+    };
+
+    let gps = Satellite {
+        name: String::from("GPS"),
+        velocity: 2.42
+    };
+
+    println!("hubble == gps is {}", hubble == gps);
+    println!("hubble > gps is {}", hubble > gps);
+
+
+    println!();
+    output_section_separator();
+}
+
+fn print_type<T: fmt::Debug>(item: T) {
+    println!("{:?} is {}", item, any::type_name::<T>());
+}
+
+fn trait_bounds() {
+    println!("Trait Bounds");
+
+    // Trait Bounds
+    // Require a generic type to implement specific traits.
+    // Guarantees the generic type will have the necessary behaviors.
+
+    print_type(13);
+    print_type(13.0);
+    print_type("thirteen");
+    print_type([13]);
+
+    println!();
+    output_section_separator();
+}
+
+// One way.
+// fn compare_and_print<T: fmt::Display + PartialEq + From<U>, U: fmt::Display + PartialEq + Copy>(a: T, b: U) {
+// Another way with the where clause.
+fn compare_and_print<T, U>(a: T, b: U)
+    where T: fmt::Display + PartialEq + From<U>,
+          U: fmt::Display + PartialEq + Copy
+{
+
+        if a == T::from(b) {
+        println!("{} is equal to {}", a, b);
+    } else {
+        println!("{} is NOT equal to {}", a, b);
+    }
+}
+
+fn multiple_trait_bounds() {
+    println!("Multiple Traits Bounds");
+
+    // Trait Bounds
+    // Require a generic type to implement specific traits.
+    // Guarantees the generic type will have the necessary behaviors.
+
+    compare_and_print(1.0, 1);
+    compare_and_print(1.1, 1);
+
+
+    println!();
+    output_section_separator();
+}
+
+// Return anything that implements format::Display trait.
+fn get_displayable(choice: bool) -> impl Display {
+    return if choice {
+        13
+    } else {
+        // Won't work until we learn dynamic dispatch in Rust.
+        // "thirteen"
+        -1
+    }
+}
+
+fn return_types_with_implemented_traits() {
+    println!("Multiple Traits Bounds");
+
+    println!("Output is {}", get_displayable(true));
+    println!("Output is {}", get_displayable(false));
+
+
+    println!();
+    output_section_separator();
+}
+
+// Implements Display trait for our Custom Struct.
+impl Display for Satellite {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut message = String::from("Satellite ");
+        message.push_str(&self.name);
+        message.push_str(" is flying at an velocity of ");
+        message.push_str(&self.velocity.to_string());
+        f.write_str(&message)
+    }
+}
+
+fn using_display_trait() {
+    println!("Challenge: Implement the Display trait for a custom struct.");
+
+
+    let spudnik = Satellite {
+        name: String::from("spudnik"),
+        velocity: 3420f64
+    };
+
+    println!("{}", spudnik);
+
+
+    println!();
+    output_section_separator();
+}
+
+fn borrow_checker() {
+    println!("Borrow checker");
+
+
+    // Borrow checker
+    // The compiler will let us know that the lifetime is
+    // not long enough through the borrow checker.
+    let propellant;
+
+    // Example of inadequate lifetime
+    // {
+    //     // Create a dangling reference.
+    //     let rp1 = String::from("RP-1");
+    //     propellant = &rp1;
+    // }
+
+    // The fix
+    let rp1 = String::from("RP-1");
+    {
+        propellant = &rp1;
+    }
+
+    println!("Propellant is {}", propellant);
+
+    println!();
+    output_section_separator();
+}
+
+fn best_fuel<'a, 'b: 'a>(x: &'a str, y: &'b str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    }
+    else {
+        y
+    }
+}
+
+fn lifetime_annotation_syntax() {
+    println!("Lifetime annotation syntax");
+
+    // Lifetime Annotation
+    // Explicitly defines a generic lifetime for parameters.
+    // Must begin with an apostrophe (') symbol.
+    // Convention is to use a single lowercase letter.
+
+    let propellant1 = String::from("RP-1");
+    let propellant2 = String::from("LNG");
+    let result = best_fuel(&propellant1, &propellant2);
+    println!("Propellant is {}", result);
+
+    println!();
+    output_section_separator();
+}
+
+fn lifetime_elision_rules() {
+    println!("Lifetime elision rules");
+
+    // Lifetime elision rules
+    // Set of rules for the compiler to analyze reference lifetimes.
+    // Describes situations that do not require explicit lifetime
+    // annotations.
+    // If any ambiguity remains, explicit annotations will be required.
+    //
+    // There are currently 3 Lifetime Elision Rules.
+    // #1 Each input parameter that is a reference is assigned
+    // its own lifetime (Only applies to references &).
+    // eg.
+    // fn get_first_word<'a>(x: &'a str) -> &str
+    // fn get_longest<'a, 'b>(x: &'a str, y: &'b str) -> &str
+    //
+    // #2 If there is exactly one input lifetime, assign it
+    // to all output lifetimes.
+    // eg.
+    // fn get_first_word<'a>(x: &'a str) -> &'a str
+    //
+    // #3 If there is a &self or &mut self input parameter, its
+    // lifetime will be assign to all output lifetimes.
+    // eg.
+    // fn send_transmission(&self, msg: &str) -> &str
+    // fn send_transmission<'a, 'b>(&'a self, msg: &'b str) -> &'a str
+    //
+    // If any of these three cannot be met, the compiler
+    // requires explicit rules.
+
+    let propellant1 = String::from("RP-1");
+    let propellant2 = String::from("LNG");
+    let result = best_fuel(&propellant1, &propellant2);
+    println!("Propellant is {}", result);
+
+    println!();
+    output_section_separator();
+}
+
+struct Ship<'a> {
+    name: &'a str
+}
+
+impl<'a, 'b> Ship<'a> {
+    fn send_transmission(&'a self, msg: &'b str) -> &'b str {
+        println!("Transmitting message: {}", msg);
+        msg
+    }
+}
+
+fn struct_lifetime_annotations() {
+    println!("Struct lifetime annotations.");
+
+    let enterprize = Ship {
+        name: "Enterprize"
+    };
+
+    println!("Sender is {}", enterprize.send_transmission("Greetings from orbit!"));
+
+    // Static lifetime (Alternative)
+    // Indicates references are available for the entire
+    // duration of the program.
+    // Example: string literal.
+    // let s:&'static str = "Greetings from Neptune!"
+    // Can be coerced to move restrictive lifetime.
+    // Example on a trait bound.
+    // T: Display + 'static
+
 
     println!();
     output_section_separator();
