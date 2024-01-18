@@ -1,10 +1,12 @@
 use std::{any, fmt, io, mem};
-use std::io::{stdin, Write};
+use std::io::{Read, stdin, Write};
 use rand::prelude::*;
 use std::env;
 use std::fs;
 use std::cmp::PartialOrd;
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Pointer};
+use std::fs::File;
 
 /**
  * Going through the Rust programming language basics on linkin learning.
@@ -70,6 +72,19 @@ fn main() {
     borrow_checker();
     lifetime_annotation_syntax();
     struct_lifetime_annotations();
+    defining_enums();
+    match_operator();
+    defining_enum_method();
+    null_safety_with_option();
+    if_let();
+    using_enums_challenge();
+    error_handling_in_rust();
+    handling_recoverable_errors();
+    propagating_error();
+    // higher_lower_game_with_error_handling();
+    using_vector_data_type();
+    using_hash_map_data_type();
+    end_challenge();
 }
 
 fn output_section_separator() {
@@ -860,7 +875,7 @@ fn using_creates_rand() {
 }
 
 fn higher_lower_game() {
-    println!("Challenge crates, Rand create :\n");
+    println!("Challenge higher lower guessing game :\n");
 
     let prize_number = thread_rng().gen_range(1..101);
 
@@ -1641,6 +1656,361 @@ fn struct_lifetime_annotations() {
     // Can be coerced to move restrictive lifetime.
     // Example on a trait bound.
     // T: Display + 'static
+
+
+    println!();
+    output_section_separator();
+}
+
+#[derive(Debug)]
+enum Shape {
+    Circle(f64),
+    Rectangle(f64, f64),
+    Triangle(f64, f64, f64)
+}
+
+fn defining_enums() {
+    println!("Defining Enums.");
+
+    let a_shape = Shape::Rectangle(2.5, 2.4);
+    println!("The shape is {:?}", a_shape);
+
+    println!();
+    output_section_separator();
+}
+
+fn match_operator() {
+    println!("Match operator");
+
+    // Compares a value to a series of patterns
+    // to determine which code to execute.
+    // Similar to a Switch statement.
+    //
+    // All possible cases must be handled.
+
+    let a_shape = Shape::Rectangle(2.5, 2.4);
+    println!("The shape is {:?}", a_shape);
+
+    match a_shape {
+        Shape::Circle(radius) => println!("Circle with radius {}", radius),
+        Shape::Rectangle(width, height) => println!("{} x {} Rectangle", width, height),
+        Shape::Triangle(a, b, c) => println!("Triangle with edges {}, {}, {}", a, b, c),
+    }
+
+    let a_number = 1u8;
+    let result = match a_number {
+        0 => "zero",
+        1 => "one",
+        _ => "" // wildcard
+    };
+    println!("The shape is {}", result);
+
+    println!();
+    output_section_separator();
+}
+
+impl Shape {
+    fn get_perimeter(&self) -> f64 {
+        match *self {
+            Shape::Circle(r) => r * 2f64 * std::f64::consts::PI,
+            Shape::Rectangle(w, h) => (2.0f64 * w) + (2.0f64 * h),
+            Shape::Triangle(a, b, c) => a + b + c
+        }
+    }
+}
+
+fn defining_enum_method() {
+    println!("Defining Enum Method.");
+
+    let a_shape = Shape::Rectangle(2.5, 2.4);
+    println!("The shape perimeter is {}", a_shape.get_perimeter());
+
+    println!();
+    output_section_separator();
+}
+
+fn null_safety_with_option() {
+    println!("Null safety with Rust Option<T>.");
+
+    let countdown = [5, 4, 3, 2, 1];
+    let number = countdown.get(5);
+    let addition = number.unwrap_or(&0) + 1;
+    println!("Retrieved addition is {:?}", addition);
+
+    let number = countdown.get(5);
+    let addition = match number {
+        Some(n) => n + 1,
+        None => 0
+    };
+    println!("Retrieved addition(match) is {:?}", addition);
+
+    println!();
+    output_section_separator();
+}
+
+fn if_let() {
+    println!("If-let syntax.");
+
+    let number = Some(13);
+    if let Some(13) = number {
+        println!("Retrieved addition is {:?}", number);
+    }
+
+    println!();
+    output_section_separator();
+}
+
+enum Location {
+    Unknown,
+    Anonymous,
+    Known(f64, f64)
+}
+
+impl Location {
+    fn display(&self) {
+        match *self {
+            Location::Unknown => println!("This location is Unknown."),
+            Location::Anonymous => println!("This location is Anonymous."),
+            Location::Known(latitude, longitude) => println!("This location is at latitude {} and longitude {}", latitude, longitude)
+        }
+    }
+}
+
+fn using_enums_challenge() {
+    println!("Challenge: Using Enums and Enum Methods.");
+
+    let address = Location::Unknown;
+    address.display();
+    let address = Location::Anonymous;
+    address.display();
+    let address = Location::Known(28.608295, -80.604177);
+    address.display();
+
+    println!();
+    output_section_separator();
+}
+
+fn error_handling_in_rust() {
+    println!("Error handling in Rust.");
+
+    // Rust has several feature to handle runtime errors.
+    // Errors are grouped into two categories: recoverable
+    // and unrecoverable.
+    // Recoverable:
+    // eg. File not found error.
+    // Handled with a Result<T, E>
+    // Unrecoverable:
+    // eg. Index beyond array bounds.
+    // Handled with panic! macro.
+    // Terminates and provides feedback.
+    // panic!("MESSAGE")
+
+    let countdown = [5, 4, 3, 2, 1, 0];
+
+    for count in countdown.iter() {
+        println!("T-minus {}", count);
+
+        // Without this validation the compiler will
+        // panic.
+        if count > &0 {
+            let x = 1 / count;
+        }
+    }
+
+    // Example of recoverable error...
+    // contents is: Err(Os { code: 2, kind: NotFound, message: "The system cannot find the file specified." })
+    let contents = fs::read_to_string("file_which_wont_exist.txt");
+    println!("contents is: {:?}", contents);
+
+    println!();
+    output_section_separator();
+}
+
+fn handling_recoverable_errors() {
+    println!("Handling recoverable errors.");
+
+    let results = fs::read_to_string("file_which_wont_exist.txt");
+
+    let message = match results {
+        Ok(file) => file,
+        Err(error) => match error.kind() {
+            io::ErrorKind::NotFound => String::from("File doesn't exist."),
+            io::ErrorKind::PermissionDenied => String::from("User doesn't have permission."),
+            _ => String::from("Unknown error")
+        }
+    };
+    println!("Message is {}", message);
+
+    // Another way
+    // let message = results.unwrap_or_else(|error| String::from("File doesn't exist."));
+    // println!("Message is {}", message);
+
+
+    println!();
+    output_section_separator();
+}
+
+fn read_and_combine(f1: &str, f2: &str) -> Result<String, io::Error> {
+    let mut results_1 = fs::read_to_string(f1)?;
+    let results_2 = match fs::read_to_string(f2) {
+        Ok(s) => s,
+        Err(e) => return Err(e)
+    };
+
+    results_1.push_str(&results_2);
+    Ok(results_1)
+}
+
+fn propagating_error() {
+    println!("Propagating errors.");
+
+
+    let result = read_and_combine("doesnt_exist", "doesnt_exist");
+
+    match result {
+        Ok(s) => println!("File contents are {}", s),
+        Err(error) => println!("Error reading in files: {}", error)
+    }
+
+    println!();
+    output_section_separator();
+}
+
+fn higher_lower_game_with_error_handling() {
+    println!("Challenge higher lower guessing game, error handling\n");
+
+    let prize_number = thread_rng().gen_range(1..101);
+
+
+    loop {
+        println!("Guess a number between 1 and 100");
+        let mut user_guess = String::new();
+        stdin().read_line(&mut user_guess);
+
+        let casted_number = match user_guess.trim().parse::<u8>() {
+            Ok(number) => number,
+            Err(error) => {
+                println!("Not a valid number!");
+                continue
+            }
+        };
+
+        if casted_number == prize_number {
+            println!("Woo, you got got it!");
+            break;
+        }
+        else if casted_number < prize_number {
+            println!("Higher...");
+        }
+        else if casted_number > prize_number {
+            println!("Lower...");
+        }
+
+    }
+
+    println!();
+    output_section_separator();
+}
+
+fn using_vector_data_type() {
+    println!("Vector data type\n");
+
+    // Vec<T> Data Type
+    // Collection of elements with the same data type.
+    // Elements are stored in order.
+    // Items can be dynamically added and removed.
+    // Stored in the heap memory.
+    //
+
+    let mut astronauts: Vec<String> = Vec::new();
+    astronauts.push(String::from("Shepard"));
+    astronauts.push(String::from("Grissom"));
+    astronauts.push(String::from("Glenn"));
+    println!("Astronauts is {:?}", astronauts);
+
+    let last = astronauts.pop();
+    println!("Last is {:?}", last);
+
+    // let third = &astronauts[2];
+    // println!("Third is {}", third);
+
+    // Safer way to get items from Vector.
+    // Returns none if index out of bounds.
+    let third_safe = astronauts.get(2);
+    println!("Third safe is {:?}", third_safe);
+
+    let alternative_instantiation = vec![1, 2, 3, 4, 5];
+    println!("Alternative way to create Vectors through a macro: {:?}", alternative_instantiation);
+
+    println!();
+    output_section_separator();
+}
+
+fn using_hash_map_data_type() {
+    println!("Hash Map data type\n");
+
+    // HashMap<K, V> Data Type
+    // Stores in Key -> Values pairs.
+    // Uses keys to look up corresponding values.
+    // Key -> Value mapping is one way.
+    // Uses a hash function to determine how to
+    // store data.
+    // Keys are not stored in relative order.
+
+    let mut missions_flown: HashMap<&str, i32> = HashMap::new();
+    missions_flown.insert("Hadfield", 3);
+    missions_flown.insert("Hurley", 3);
+    missions_flown.insert("Barron", 1);
+    println!("Missions flown is {:?}", missions_flown);
+    missions_flown.entry("Barron").or_insert(2);
+    let barron_missions = missions_flown.get("Barron");
+    println!("Barrons missions are {:?}", barron_missions);
+
+
+    println!();
+    output_section_separator();
+}
+
+fn read_in_file_list_word_occurrences<'a>(file_path: &'a str, file_buffer: &'a mut String, hash_map: &'a mut HashMap<String, u32>) -> Result<&'a mut HashMap<String, u32>, io::Error> {
+
+    let mut open_file = File::open(file_path)?;
+    open_file.read_to_string(file_buffer)?;
+
+    for line in file_buffer.lines() {
+        let words_on_line: Vec<&str> = line.split(" ").collect();
+
+        for word_on_line in words_on_line {
+            let trimmed_word = String::from(word_on_line.trim());
+            let new_or_existing_increment = hash_map.get(&trimmed_word).or(Some(&0));
+
+            hash_map.insert(trimmed_word, new_or_existing_increment.unwrap() + 1);
+        }
+    }
+
+    Ok(hash_map)
+}
+
+fn end_challenge() {
+    println!("End Challenge\n");
+
+    let mut file_contents = String::new();
+    let mut hash_map_word = HashMap::new();
+    let result = read_in_file_list_word_occurrences("planets.txt", &mut file_contents, &mut hash_map_word);
+    // Read in a text file
+    // Count the number of times each word occurs
+    // Print a message with the most common words
+    // and how many times they appeared.
+    match result {
+        Ok(hashmap) => {
+
+            let mut result_sorted_by_value: Vec<_> = hashmap.iter().collect();
+            result_sorted_by_value.sort_by(|a, b| b.1.cmp(a.1));
+
+
+            println!("Sorted by occurrences: {:?}", result_sorted_by_value);
+        },
+        Err(error) => println!("Error reading the file {:?}", error)
+    }
 
 
     println!();
